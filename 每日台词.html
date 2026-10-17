@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Movie Quote</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: transparent;
+            color: #37352f;
+            padding: 12px 16px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100px;
+            box-sizing: border-box;
+        }
+        /* 适配 Notion 的暗黑模式 */
+        @media (prefers-color-scheme: dark) {
+            body { color: #ffffff; }
+        }
+        .quote-box {
+            border-left: 3px solid #2eaadc;
+            padding-left: 12px;
+        }
+        .quote {
+            font-size: 15px;
+            font-style: italic;
+            margin: 0 0 6px 0;
+            line-height: 1.5;
+        }
+        .source {
+            font-size: 13px;
+            opacity: 0.7;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="quote-box">
+        <p class="quote" id="quote">Loading quote...</p>
+        <p class="source" id="source"></p>
+    </div>
+
+    <script>
+        // prasertcbs/basic-dataset 的 raw 访问地址
+        const url = 'https://raw.githubusercontent.com/prasertcbs/basic-dataset/master/movie_quotes.json';
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                // 计算当天是一年中的第几天，确保“每日台词”在同一天内保持不变，第二天自动换新
+                const now = new Date();
+                const start = new Date(now.getFullYear(), 0, 0);
+                const diff = now - start;
+                const oneDay = 1000 * 60 * 60 * 24;
+                const dayOfYear = Math.floor(diff / oneDay);
+                
+                const index = dayOfYear % data.length;
+                const item = data[index];
+                
+                document.getElementById('quote').innerText = `"${item.quote}"`;
+                document.getElementById('source').innerText = `—— 《${item.movie}》 (${item.year || ''})`;
+            })
+            .catch(err => {
+                document.getElementById('quote').innerText = "Failed to load quote.";
+            });
+    </script>
+</body>
+</html>
